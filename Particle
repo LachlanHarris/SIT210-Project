@@ -1,0 +1,43 @@
+#include "MQTT.h"
+
+// Create an MQTT client
+MQTT client("test.mosquitto.org", 1883, callback);
+int red = D4;
+int green = D2;
+int Occupancy = 0;
+int MaxOccupancy = 1;
+
+void callback(char* topic, byte* payload, unsigned int length) 
+{
+    Occupancy += 1;
+}
+
+// Setup the Photon
+void setup() 
+{
+    // Connect to the server and call ourselves "photonDev"
+    client.connect("photonProject");
+    client.subscribe("Project");
+    pinMode(red , OUTPUT);
+    pinMode(green , OUTPUT);
+}
+
+// Main loop
+void loop() 
+{
+    // Only try to send messages if we are connected
+    if (client.isConnected())
+    {
+        if (Occupancy >= MaxOccupancy)
+        {
+            digitalWrite(red , HIGH);
+            digitalWrite(green , LOW);
+        }
+        else
+        {
+            digitalWrite(green , HIGH);
+            digitalWrite(red, LOW);
+        }
+        client.loop();
+    }
+}
